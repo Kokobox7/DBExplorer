@@ -18,10 +18,12 @@ public class MainConsole {
         try {
             assert connection != null;
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT title FROM books");
+            ResultSet resultSet = statement.executeQuery(
+                    "SELECT datname FROM pg_database "+
+                            "WHERE datistemplate = false;");
 
             while (resultSet.next()) {
-                System.out.println(resultSet.getString("title"));
+                System.out.println(resultSet.getString("datname"));
             }
             statement.close();
             DBConnector.close();
