@@ -23,10 +23,12 @@ abstract public class SceneStarter {
             Parent root = loader.load();
             stage.setScene(new Scene(root));
             if (maximized) {
+                stage.setMinHeight(1920);
+                stage.setMinWidth(1080);
                 stage.setMaximized(true);
             } else {
-                stage.setMaxHeight(400);
-                stage.setMaxWidth(640);
+                stage.setMinHeight(400);
+                stage.setMinWidth(640);
                 stage.centerOnScreen();
             }
             stage.setTitle(title);

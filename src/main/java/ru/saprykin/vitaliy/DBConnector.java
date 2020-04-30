@@ -25,6 +25,21 @@ public class DBConnector {
         return connection;
     }
 
+    public static Connection connectToDBExploration() throws SQLException {
+        try {
+            Class.forName(DBMSDriver);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        //TODO:YOU CAN NOT PUBLIC THIS!
+        connection = DriverManager.getConnection(
+                "jdbc:postgresql://dbexploration.postgres.database.azure.com:5432/" +
+                        "DBExplorer?user=Kokobox7@dbexploration&password=Ctrhtn12345&sslmode=require");
+
+        return connection;
+    }
+
+
     public static void close() throws SQLException {
         connection.close();
     }

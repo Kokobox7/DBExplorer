@@ -5,5 +5,5 @@
 <?import javafx.scene.layout.*?>
 
 <VBox prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-    <Label id="profileInformer" fx:id="profileInformer" text="AAAAAAA" />
+    <Label id="profileInformer" fx:id="profileInformer" text="ProfileInfo" />
 </VBox>

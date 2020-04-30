@@ -9,7 +9,7 @@ public class ExplorerSceneController extends SceneController {
     @FXML
     private Label profileInformer;
 
-    public void init(boolean guest, String login, String password) {
+    public void init(boolean guest, String login) {
         if (guest) {
             ExplorerSceneController.guest = true;
             profileInformer.setText("Welcome, guest.");

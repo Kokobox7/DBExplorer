@@ -10,9 +10,23 @@
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
         <version>0.0.4</version>
-        <configuration>
-          <mainClass>ru.saprykin.vitaliy.MainLauncher</mainClass>
-        </configuration>
+        <executions>
+          <execution>
+            <id>default-cli</id>
+            <configuration>
+              <mainClass>ru.saprykin.vitaliy.MainLauncher</mainClass>
+            </configuration>
+          </execution>
+          <execution>
+            <id>debug</id>
+            <configuration>
+              <options>
+                <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:8000</option>
+              </options>
+              <mainClass>ru.saprykin.vitaliy.MainLauncher</mainClass>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

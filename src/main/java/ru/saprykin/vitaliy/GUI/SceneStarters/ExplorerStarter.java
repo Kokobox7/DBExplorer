@@ -11,9 +11,10 @@ import java.io.IOException;
 import java.net.URL;
 
 public class ExplorerStarter {
-    public void startExplorerScene(boolean guest, String login, String password) {
+    public void startExplorerScene(boolean guest, String login) {
         ExplorerSceneController sceneController = new ExplorerSceneController();
         SceneStarter.start(sceneController, "/ExplorerScene.fxml", "DBExplorer", true);
-        sceneController.init(guest, login, password);
+        sceneController.init(guest, login);
     }
+
 }
