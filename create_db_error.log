@@ -1,0 +1,35 @@
+
+-------
+02/34/2020 13:34:34
+-------
+
+Error executing 'CREATE TABLE roles (
+                    id SERIAL PRIMARY KEY,
+                    name varchar(50) UNIQUE
+                    ) ' (line 4): ОШИБКА: отношение "roles" уже существует
+
+-------
+02/42/2020 13:42:10
+-------
+
+Error executing 'CREATE TABLE roles (
+                    id SERIAL PRIMARY KEY,
+                    name varchar(50) UNIQUE
+                    ) ' (line 4): ERROR: relation "roles" already exists
+
+-------
+02/47/2020 13:47:35
+-------
+
+Error executing 'CREATE TABLE roles (
+                    id SERIAL PRIMARY KEY,
+                    name varchar(50) UNIQUE
+                    ) ' (line 4): ERROR: relation "roles" already exists
+
+-------
+02/55/2020 13:55:20
+-------
+
+Error executing 'INSERT INTO roles (name)
+VALUES ('admin'), ('user') ' (line 8): ERROR: duplicate key value violates unique constraint "roles_name_key"
+  Detail: Key (name)=(admin) already exists.

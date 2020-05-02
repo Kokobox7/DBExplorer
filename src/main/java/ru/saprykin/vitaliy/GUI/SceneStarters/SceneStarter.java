@@ -15,7 +15,6 @@ abstract public class SceneStarter {
         Stage stage = MainGUIStarter.getStage();
         FXMLLoader loader = new FXMLLoader();
         loader.setController(sceneController.getController());
-        //URL xmlUrl = getClass().getResource("/AuthScene.fxml");
         URL xmlUrl = SceneStarter.class.getResource(fxmlResource);
         loader.setLocation(xmlUrl);
 

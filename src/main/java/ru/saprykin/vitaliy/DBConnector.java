@@ -13,7 +13,7 @@ public class DBConnector {
     final private static String DBMSpassword = "admin";
     private static Connection connection;
 
-    public static Connection connect() throws SQLException {
+    public static Connection connectToExternalDB() throws SQLException {
         try {
             Class.forName(DBMSDriver);
         } catch (ClassNotFoundException e) {
@@ -25,7 +25,7 @@ public class DBConnector {
         return connection;
     }
 
-    public static Connection connectToDBExploration() throws SQLException {
+    public static Connection connectToApplicationDB() throws SQLException {
         try {
             Class.forName(DBMSDriver);
         } catch (ClassNotFoundException e) {

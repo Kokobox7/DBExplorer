@@ -1,0 +1,45 @@
+
+-------
+02/34/2020 13:34:34
+-------
+
+CREATE TABLE roles (
+                    id SERIAL PRIMARY KEY,
+                    name varchar(50) UNIQUE
+                    ) 
+
+-------
+02/42/2020 13:42:10
+-------
+
+CREATE TABLE roles (
+                    id SERIAL PRIMARY KEY,
+                    name varchar(50) UNIQUE
+                    ) 
+
+-------
+02/47/2020 13:47:35
+-------
+
+CREATE TABLE roles (
+                    id SERIAL PRIMARY KEY,
+                    name varchar(50) UNIQUE
+                    ) 
+
+-------
+02/55/2020 13:55:20
+-------
+
+CREATE TABLE roles (
+                    id SERIAL PRIMARY KEY,
+                    name varchar(50) UNIQUE
+                    ) 
+INSERT INTO roles (name)
+VALUES ('admin'), ('user') 
+CREATE TABLE profiles (
+                    id SERIAL PRIMARY KEY,
+                    name varchar(50) UNIQUE,
+                    role varchar(50) REFERENCES roles(name)
+                    ) 
+INSERT INTO roles (name)
+VALUES ('admin'), ('user') 
