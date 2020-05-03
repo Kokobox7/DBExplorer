@@ -27,7 +27,7 @@ abstract public class SceneStarter {
                 stage.setMaximized(true);
             } else {
                 stage.setMinHeight(400);
-                stage.setMinWidth(640);
+                stage.setMinWidth(660);
                 stage.centerOnScreen();
             }
             stage.setTitle(title);

@@ -1,8 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-<VBox prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
-      xmlns:fx="http://javafx.com/fxml/1">
-    <Label id="profileInformer" fx:id="profileInformer" text="ProfileInfo"/>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+    <Label id="profileInformer" fx:id="profileInformer" text="ProfileInfo">
+        <font>
+            <Font size="14.0" />
+        </font>
+    </Label>
+    <HBox prefHeight="749.0" prefWidth="1900.0">
+        <VBox prefHeight="749.0" prefWidth="206.0">
+            <Label text="Tables:">
+                <font>
+                    <Font size="14.0" />
+                </font>
+            </Label>
+            <ListView fx:id="listOfTables" />
+        </VBox>
+      <Separator orientation="VERTICAL" prefHeight="200.0" />
+        <TableView fx:id="table">
+            <columns>
+                <TableColumn prefWidth="75.0" text="C1" />
+                <TableColumn prefWidth="75.0" text="C2" />
+            </columns>
+            <HBox.margin>
+                <Insets top="20.0" />
+            </HBox.margin>
+        </TableView>
+        <padding>
+            <Insets top="12.0" />
+        </padding>
+    </HBox>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
 </VBox>

@@ -35,9 +35,9 @@ public class DBConnectionSceneController extends SceneController {
     @FXML
     Label connectionError;
 
-    private Connection appDBConnection;
-    private String login;
-    private boolean guest;
+    private final Connection appDBConnection;
+    private final String login;
+    private final boolean guest;
 
     ResultSet predefinedDatabases;
 

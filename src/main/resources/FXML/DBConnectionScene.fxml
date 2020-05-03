@@ -5,69 +5,62 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
-      prefWidth="640.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ru.saprykin.vitaliy.GUI.SceneContollers.DBConnectionSceneController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="660.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <HBox minHeight="50.0">
-        <VBox alignment="CENTER" prefWidth="320.0">
+        <VBox alignment="CENTER" prefWidth="340.0">
             <RadioButton mnemonicParsing="false" onAction="#clickedSpec" text="Connect to your database">
                 <font>
-                    <Font size="14.0"/>
+                    <Font size="14.0" />
                 </font>
                 <toggleGroup>
-                    <ToggleGroup fx:id="toggleGroup1"/>
+                    <ToggleGroup fx:id="toggleGroup1" />
                 </toggleGroup>
             </RadioButton>
         </VBox>
-        <VBox alignment="CENTER" prefWidth="320.0">
-            <RadioButton mnemonicParsing="false" onAction="#clickedProfile" selected="true"
-                         text="Connect to predefined database" toggleGroup="$toggleGroup1">
+        <VBox alignment="CENTER" prefWidth="340.0">
+            <RadioButton mnemonicParsing="false" onAction="#clickedProfile" selected="true" text="Connect to predefined database" toggleGroup="$toggleGroup1">
                 <font>
-                    <Font size="14.0"/>
+                    <Font size="14.0" />
                 </font>
             </RadioButton>
         </VBox>
     </HBox>
-    <HBox id="hb" prefHeight="390.0" prefWidth="600.0">
-        <VBox fx:id="VBoxSpec" alignment="CENTER" disable="true" prefHeight="350.0" prefWidth="320.0"
-              spacing="20.0" style="-fx-background-color: ddd;">
+    <Separator />
+    <HBox id="hb" prefWidth="600.0">
+        <VBox fx:id="VBoxSpec" alignment="BOTTOM_CENTER" disable="true" fillWidth="false" prefWidth="340.0" spacing="30.0" style="-fx-background-color: ddd;">
             <padding>
-                <Insets right="5.0"/>
+                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
             </padding>
             <HBox prefHeight="200.0" prefWidth="300.0">
                 <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="206.0" spacing="29.0">
                     <padding>
-                        <Insets right="5.0"/>
+                        <Insets right="5.0" />
                     </padding>
-                    <Label  text="Host name or address:"/>
-                    <Label text="Port:"/>
-                    <Label text="Database name:"/>
-                    <Label text="Login:"/>
-                    <Label text="Password:"/>
+                    <Label text="Host name or address:" />
+                    <Label text="Port:" />
+                    <Label text="Database name:" />
+                    <Label text="Login:" />
+                    <Label text="Password:" />
                 </VBox>
                 <VBox prefHeight="200.0" prefWidth="255.0" spacing="20.0">
-                    <TextField fx:id="tfHost"/>
-                    <TextField fx:id="tfPort"/>
-                    <TextField fx:id="tfDBName"/>
-                    <TextField fx:id="tfLogin"/>
-                    <TextField fx:id="tfPassword"/>
+                    <TextField fx:id="tfHost" />
+                    <TextField fx:id="tfPort" />
+                    <TextField fx:id="tfDBName" />
+                    <TextField fx:id="tfLogin" />
+                    <TextField fx:id="tfPassword" />
                 </VBox>
             </HBox>
-            <Button mnemonicParsing="false" onAction="#buttonSpecClicked"
-                    text="Explore the database"/>
+            <Button mnemonicParsing="false" onAction="#buttonSpecClicked" text="Explore the database" />
             <Label fx:id="connectionError" text="Connection error" textFill="RED" visible="false">
                 <font>
-                    <Font size="14.0"/>
+                    <Font size="14.0" />
                 </font>
             </Label>
         </VBox>
-        <VBox fx:id="VBoxProfile" alignment="CENTER" prefHeight="350.0" prefWidth="355.0"
-              spacing="40.0">
-            <children>
-                <ChoiceBox fx:id="chooseDB" prefHeight="25.0" prefWidth="194.0"/>
-                <Button mnemonicParsing="false" onAction="#buttonProfileClicked"
-                        text="Explore the database"/>
-            </children>
+        <Separator orientation="VERTICAL" prefHeight="200.0" />
+        <VBox fx:id="VBoxProfile" alignment="CENTER" prefHeight="350.0" prefWidth="340.0" spacing="40.0">
+            <ChoiceBox fx:id="chooseDB" pickOnBounds="false" prefWidth="140.0" />
+            <Button mnemonicParsing="false" onAction="#buttonProfileClicked" text="Explore the database" />
         </VBox>
     </HBox>
 </VBox>
