@@ -6,41 +6,49 @@ import java.sql.SQLException;
 
 public class DBConnector {
     final private static String DBMSDriver = "org.postgresql.Driver";
-    final private static String IP = "localhost";
-    final private static String port = "5432";
-    final private static String DBname = "test_db";
-    final private static String DBMSuser = "postgres";
-    final private static String DBMSpassword = "admin";
-    private static Connection connection;
 
-    public static Connection connectToExternalDB() throws SQLException {
-        try {
-            Class.forName(DBMSDriver);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        connection = DriverManager.getConnection(
-                "jdbc:postgresql://" + IP + ":" + port + "/" + DBname,
-                DBMSuser, DBMSpassword);
-        return connection;
+    private static Connection appDBConnection;
+    private static Connection externalDBConnection;
+
+    public static Connection getExternalDBConnection() throws SQLException {
+       return externalDBConnection;
     }
 
-    public static Connection connectToApplicationDB() throws SQLException {
+    public static Connection getExternalDBConnection
+            (String hostNameORAddress, int port, String dbName, String dbUser, String dbPassword) throws SQLException {
         try {
             Class.forName(DBMSDriver);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        //TODO:YOU CAN NOT PUBLIC THIS!
-        connection = DriverManager.getConnection(
+        externalDBConnection = DriverManager.getConnection(
+                "jdbc:postgresql://" + hostNameORAddress + ":" + port + "/" + dbName,
+                dbUser, dbPassword);
+        return externalDBConnection;
+    }
+
+
+    public static Connection getAppDBConnection() throws SQLException {
+        if (appDBConnection != null) {
+            return appDBConnection;
+        }
+        else return connectToApplicationDB();
+    }
+
+    private static Connection connectToApplicationDB() throws SQLException {
+        try {
+            Class.forName(DBMSDriver);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        appDBConnection = DriverManager.getConnection(
                 "jdbc:postgresql://dbexploration.postgres.database.azure.com:5432/" +
-                        "DBExplorer?user=Kokobox7@dbexploration&password=Ctrhtn12345&sslmode=require");
+                        "DBExplorer?user=reader@dbexploration&password=reader&sslmode=require");
 
-        return connection;
+        return appDBConnection;
     }
-
 
     public static void close() throws SQLException {
-        connection.close();
+        appDBConnection.close();
     }
 }

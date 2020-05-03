@@ -9,10 +9,10 @@ import java.sql.SQLException;
 public class AuthStarter {
     public void startScene() {
         try {
-            Connection appDBConnection = DBConnector.connectToApplicationDB();
+            Connection appDBConnection = DBConnector.getAppDBConnection();
             AuthSceneController sceneController = new AuthSceneController();
             SceneStarter.start(sceneController, "/FXML/AuthScene.fxml", "DBExplorer. Authentication", false);
-            sceneController.init(appDBConnection);
+            //sceneController.init(appDBConnection);
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();

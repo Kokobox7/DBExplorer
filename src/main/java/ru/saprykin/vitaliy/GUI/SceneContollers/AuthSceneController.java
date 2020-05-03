@@ -6,7 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import ru.saprykin.vitaliy.DBConnector;
-import ru.saprykin.vitaliy.GUI.SceneStarters.ExplorerStarter;
+import ru.saprykin.vitaliy.GUI.SceneStarters.DBConnectionStarter;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -25,52 +25,50 @@ public class AuthSceneController extends SceneController {
     @FXML
     private Label labelConnectionState;
 
-    private Connection appDBConnection;
+    private final Connection appDBConnection;
 
-    public void init(Connection appDBConnection){
-        this.appDBConnection = appDBConnection;
+    public AuthSceneController() throws SQLException {
+        this.appDBConnection = DBConnector.getAppDBConnection();
     }
+
 
     @FXML
     private void buttonGuestClicked() {
-        buttonGuest.setText("Button clicked!");
-        ExplorerStarter starter = new ExplorerStarter();
-
-        starter.startExplorerScene(true, null);
+        new DBConnectionStarter().startScene(true, null);
     }
 
     @FXML
-    private void buttonAdminClicked() throws SQLException {
-        buttonGuest.setText("Button clicked!");
-        ExplorerStarter starter = new ExplorerStarter();
+    private void buttonAdminClicked() {
         if (Authentication(textFieldLogin.getText(), passwordFieldPassword.getText())) {
-            appDBConnection.close();
-            starter.startExplorerScene(false, textFieldLogin.getText());
-        }
-        else {
+            new DBConnectionStarter().startScene(false, textFieldLogin.getText());
+        } else {
             labelConnectionState.setText("Invalid login or password");
         }
     }
 
     private boolean Authentication(String login, String password) {
         try {
-            if (login.isBlank() || password.isBlank()){
+            if (login.isBlank() || password.isBlank()) {
                 return false;
             }
             Statement statement = appDBConnection.createStatement();
 
-            ResultSet resultSet = statement.executeQuery("SELECT name, password FROM profiles;");
+            ResultSet resultSet = statement.executeQuery("SELECT name, password FROM user_profiles;");
 
             while (resultSet.next()) {
                 if (resultSet.getString("name").equals(login)) {
                     return resultSet.getString("password").equals(password);
                 }
             }
+
+            resultSet.close();
+            statement.close();
+
             return false;
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
-            labelConnectionState.setText("Error connecting to the profiles database");
+            labelConnectionState.setText("Server connection error");
         }
         return false;
     }

@@ -1,0 +1,2 @@
+CREATE USER reader WITH PASSWORD 'reader';
+GRANT SELECT ON ALL TABLES IN SCHEMA public  TO "reader";
