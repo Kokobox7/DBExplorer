@@ -1,2 +1,4 @@
 CREATE USER reader WITH PASSWORD 'reader';
 GRANT SELECT ON ALL TABLES IN SCHEMA public  TO "reader";
+GRANT SELECT ON ALL TABLES IN SCHEMA bookings  TO "reader";
+GRANT USAGE ON SCHEMA bookings  TO "reader";

@@ -6,35 +6,45 @@
 <?import javafx.scene.text.*?>
 
 <VBox prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-    <Label id="profileInformer" fx:id="profileInformer" text="ProfileInfo">
-        <font>
-            <Font size="14.0" />
-        </font>
-    </Label>
-    <HBox prefHeight="749.0" prefWidth="1900.0">
-        <VBox prefHeight="749.0" prefWidth="206.0">
+    <Label fx:id="profileInformer" text="ProfileInfo">
+      <font>
+         <Font size="14.0" />
+      </font></Label>
+    <HBox>
+        <VBox prefWidth="250.0">
+            <Label text="Schemas:">
+            <font>
+               <Font size="14.0" />
+            </font></Label>
+            <ChoiceBox fx:id="listOfSchemas" prefWidth="250.0">
+            <VBox.margin>
+               <Insets />
+            </VBox.margin></ChoiceBox>
+         <Label fx:id="noTablesInSchema" text="Schema has no tables" textFill="RED" visible="false">
+            <font>
+               <Font size="14.0" />
+            </font>
+         </Label>
             <Label text="Tables:">
-                <font>
-                    <Font size="14.0" />
-                </font>
-            </Label>
-            <ListView fx:id="listOfTables" />
+            <font>
+               <Font size="14.0" />
+            </font></Label>
+            <ListView fx:id="listOfTables" disable="true" prefWidth="250.0">
+            <VBox.margin>
+               <Insets bottom="40.0" />
+            </VBox.margin></ListView>
+         <Button mnemonicParsing="false" onAction="#backToDBConnection" prefHeight="25.0" prefWidth="257.0" text="Back to database selection" />
         </VBox>
-      <Separator orientation="VERTICAL" prefHeight="200.0" />
-        <TableView fx:id="table">
-            <columns>
-                <TableColumn prefWidth="75.0" text="C1" />
-                <TableColumn prefWidth="75.0" text="C2" />
-            </columns>
-            <HBox.margin>
-                <Insets top="20.0" />
-            </HBox.margin>
-        </TableView>
-        <padding>
-            <Insets top="12.0" />
-        </padding>
+        <Separator orientation="VERTICAL" />
+        <TableView fx:id="tableView" prefWidth="1000.0" tableMenuButtonVisible="true" HBox.hgrow="SOMETIMES">
+         <HBox.margin>
+            <Insets top="20.0" />
+         </HBox.margin></TableView>
+      <VBox.margin>
+         <Insets top="10.0" />
+      </VBox.margin>
     </HBox>
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
+   <padding>
+      <Insets bottom="16.0" left="32.0" right="16.0" top="16.0" />
+   </padding>
 </VBox>

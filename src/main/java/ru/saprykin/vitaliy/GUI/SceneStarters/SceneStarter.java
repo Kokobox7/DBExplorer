@@ -1,8 +1,11 @@
 package ru.saprykin.vitaliy.GUI.SceneStarters;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ru.saprykin.vitaliy.GUI.SceneContollers.SceneController;
 
@@ -21,17 +24,28 @@ abstract public class SceneStarter {
         try {
             Parent root = loader.load();
             stage.setScene(new Scene(root));
-            if (maximized) {
-                stage.setMinHeight(1920);
-                stage.setMinWidth(1080);
-                stage.setMaximized(true);
-            } else {
+            stage.centerOnScreen();
+            if (!maximized) {
                 stage.setMinHeight(400);
                 stage.setMinWidth(660);
+                stage.setHeight(400);
+                stage.setWidth(660);
                 stage.centerOnScreen();
             }
             stage.setTitle(title);
             stage.show();
+            if (maximized) {
+                // Get current screen of the stage
+                ObservableList<Screen> screens = Screen.getScreensForRectangle(new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()));
+                // Change stage properties
+                stage.setMaximized(true);
+                Rectangle2D bounds = screens.get(0).getVisualBounds();
+                stage.setX(bounds.getMinX());
+                stage.setY(bounds.getMinY());
+                stage.setWidth(bounds.getWidth());
+                stage.setHeight(bounds.getHeight());
+            }
+
         } catch (
                 IOException e) {
             e.printStackTrace();
