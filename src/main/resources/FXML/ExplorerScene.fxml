@@ -34,12 +34,32 @@
                <Insets bottom="40.0" />
             </VBox.margin></ListView>
          <Button mnemonicParsing="false" onAction="#backToDBConnection" prefHeight="25.0" prefWidth="257.0" text="Back to database selection" />
+         <HBox.margin>
+            <Insets right="6.0" />
+         </HBox.margin>
         </VBox>
         <Separator orientation="VERTICAL" />
-        <TableView fx:id="tableView" prefWidth="1000.0" tableMenuButtonVisible="true" HBox.hgrow="SOMETIMES">
+      <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+         <children>
+            <HBox fx:id="rowOfFilterButtons" prefHeight="30.0" prefWidth="200.0" spacing="10.0" />
+            <Label disable="true" text="Incorrect filter" textFill="RED" visible="false">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+              <TableView fx:id="tableView" prefWidth="1000.0" tableMenuButtonVisible="true">
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </TableView>
+         </children>
          <HBox.margin>
-            <Insets top="20.0" />
-         </HBox.margin></TableView>
+            <Insets left="6.0" />
+         </HBox.margin>
+         <padding>
+            <Insets top="14.0" />
+         </padding>
+      </VBox>
       <VBox.margin>
          <Insets top="10.0" />
       </VBox.margin>

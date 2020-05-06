@@ -90,7 +90,7 @@ public class DBConnectionSceneController extends SceneController {
         try {
             Connection externalDBConnection = DBConnector.getExternalDBConnection(hostNameORAddress, port, dbName, dbUser, dbPassword);
 
-            new ExplorerStarter().startScene(guest, login, externalDBConnection);
+            new ExplorerStarter().startScene(guest, login, externalDBConnection, dbName);
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -112,7 +112,7 @@ public class DBConnectionSceneController extends SceneController {
 
                     Connection externalDBConnection = DBConnector.getExternalDBConnection(hostNameORAddress, port, dbName, dbUser, dbPassword);
 
-                    new ExplorerStarter().startScene(guest, login, externalDBConnection);
+                    new ExplorerStarter().startScene(guest, login, externalDBConnection, dbName);
                     return;
                 }
             }
