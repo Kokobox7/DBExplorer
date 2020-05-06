@@ -11,7 +11,7 @@ public class DBConnectionStarter {
         try {
             Connection appDBConnection = DBConnector.getAppDBConnection();
             DBConnectionSceneController sceneController = new DBConnectionSceneController(guest, login);
-            SceneStarter.start(sceneController, "/FXML/DBConnectionScene.fxml", "DBExplorer. Connect to database", false);
+            SceneStarter.start(sceneController, "/FXML/DBConnectionScene.fxml", "DBExplorer. Connect to database", false, 400, 680);
             sceneController.init();
 
         } catch (SQLException throwables) {

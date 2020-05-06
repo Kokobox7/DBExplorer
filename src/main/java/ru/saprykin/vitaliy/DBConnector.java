@@ -43,7 +43,7 @@ public class DBConnector {
         }
         appDBConnection = DriverManager.getConnection(
                 "jdbc:postgresql://dbexploration.postgres.database.azure.com:5432/" +
-                        "DBExplorer?user=reader@dbexploration&password=reader&sslmode=require");
+                        "DBExplorer?user=admin@dbexploration&password=admin&sslmode=require");
 
         return appDBConnection;
     }

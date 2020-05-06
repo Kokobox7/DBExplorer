@@ -11,7 +11,7 @@ public class AuthStarter {
         try {
             Connection appDBConnection = DBConnector.getAppDBConnection();
             AuthSceneController sceneController = new AuthSceneController();
-            SceneStarter.start(sceneController, "/FXML/AuthScene.fxml", "DBExplorer. Authentication", false);
+            SceneStarter.start(sceneController, "/FXML/AuthScene.fxml", "DBExplorer. Authentication", false, 400, 580);
             //sceneController.init(appDBConnection);
 
         } catch (SQLException throwables) {

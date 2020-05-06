@@ -14,7 +14,7 @@ import java.net.URL;
 
 abstract public class SceneStarter {
 
-    public static void start(SceneController sceneController, String fxmlResource, String title, boolean maximized) {
+    public static void start(SceneController sceneController, String fxmlResource, String title, boolean maximized, int height, int width) {
         Stage stage = MainGUIStarter.getStage();
         FXMLLoader loader = new FXMLLoader();
         loader.setController(sceneController.getController());
@@ -22,18 +22,18 @@ abstract public class SceneStarter {
         loader.setLocation(xmlUrl);
 
         try {
+            stage.hide();
             Parent root = loader.load();
             stage.setScene(new Scene(root));
             stage.centerOnScreen();
             if (!maximized) {
-                stage.setMinHeight(400);
-                stage.setMinWidth(660);
-                stage.setHeight(400);
-                stage.setWidth(660);
+                stage.setMinHeight(height);
+                stage.setMinWidth(width);
+                stage.setHeight(height);
+                stage.setWidth(width);
                 stage.centerOnScreen();
             }
             stage.setTitle(title);
-            stage.show();
             if (maximized) {
                 // Get current screen of the stage
                 ObservableList<Screen> screens = Screen.getScreensForRectangle(new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()));
@@ -45,6 +45,7 @@ abstract public class SceneStarter {
                 stage.setWidth(bounds.getWidth());
                 stage.setHeight(bounds.getHeight());
             }
+            stage.show();
 
         } catch (
                 IOException e) {

@@ -3,6 +3,7 @@ package ru.saprykin.vitaliy.GUI.SceneContollers;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -14,6 +15,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.*;
 
 public class DBConnectionSceneController extends SceneController {
     @FXML
@@ -39,7 +41,9 @@ public class DBConnectionSceneController extends SceneController {
     private final String login;
     private final boolean guest;
 
-    ResultSet predefinedDatabases;
+    private ResultSet predefinedDatabases;
+    //couple: name of database profile (for users) - database name
+    private Map<String, String> databaseProfiles;
 
 
     public DBConnectionSceneController(boolean guest, String login) throws SQLException {
@@ -53,11 +57,15 @@ public class DBConnectionSceneController extends SceneController {
             Statement statement = appDBConnection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
             predefinedDatabases = statement.executeQuery("SELECT * FROM db_profiles");
-            ObservableList<String> listOfResults = FXCollections.observableArrayList();
+            ObservableList<String> names = FXCollections.observableArrayList();
+            databaseProfiles = new HashMap<String, String>();
             while (predefinedDatabases.next()) {
-                listOfResults.add(predefinedDatabases.getString("dbName"));
+                databaseProfiles.put(predefinedDatabases.getString("name"), predefinedDatabases.getString("db_name"));
             }
-            chooseDB.setItems(listOfResults);
+            Set<String> profilesSet = databaseProfiles.keySet();
+            List<String> profilesList = new ArrayList<>(profilesSet);
+            ObservableList<String> profilesObservableList = FXCollections.observableList(profilesList);
+            chooseDB.setItems(profilesObservableList);
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -100,15 +108,15 @@ public class DBConnectionSceneController extends SceneController {
 
     @FXML
     private void buttonProfileClicked() {
-        String dbName = chooseDB.getValue();
+        String dbName = databaseProfiles.get(chooseDB.getValue());
         try {
             predefinedDatabases.beforeFirst();
             while (predefinedDatabases.next()) {
-                if (predefinedDatabases.getString("dbName").equals(dbName)) {
-                    String hostNameORAddress = predefinedDatabases.getString("hostNameORAddress");
+                if (predefinedDatabases.getString("db_name").equals(dbName)) {
+                    String hostNameORAddress = predefinedDatabases.getString("host");
                     int port = predefinedDatabases.getInt("port");
-                    String dbUser = predefinedDatabases.getString("dbUser");
-                    String dbPassword = predefinedDatabases.getString("dbPassword");
+                    String dbUser = predefinedDatabases.getString("db_user");
+                    String dbPassword = predefinedDatabases.getString("db_password");
 
                     Connection externalDBConnection = DBConnector.getExternalDBConnection(hostNameORAddress, port, dbName, dbUser, dbPassword);
 

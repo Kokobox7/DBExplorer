@@ -2,12 +2,16 @@ package ru.saprykin.vitaliy.GUI.SceneContollers;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import ru.saprykin.vitaliy.DBConnector;
@@ -93,12 +97,14 @@ public class ExplorerSceneController extends SceneController {
         @Override
         //method that shows table content when another table name was selected in listView
         public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-            fillInTableView(listOfSchemas.getValue());
+            fillInListOfTables(listOfSchemas.getValue());
             fillInFilterButtonsRow(listOfSchemas.getValue());
         }
     }
 
     private void fillInFilterButtonsRow(String schema) {
+        rowOfFilterButtons.getChildren().clear();
+
         try {
             Statement statement = appDBConnection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM table_filters WHERE db_name= '" + dbName + "' AND schema= '" + schema + "'");
@@ -107,26 +113,22 @@ public class ExplorerSceneController extends SceneController {
             while (resultSet.next()) {
                 Array filtered_columnsArr = resultSet.getArray("filtered_columns");
                 String[] filtered_columns = (String[]) filtered_columnsArr.getArray();
-                filters.add(new Filter(resultSet.getString("name"), resultSet.getString("db_name"),
+                filters.add(new Filter(resultSet.getString("name"), resultSet.getString("db_name"), listOfSchemas.getValue(),
                         resultSet.getString("filtered_table"), filtered_columns));
             }
 
-            //And show filter for our database
+            //Show filters for our database
             for (Filter f : filters) {
-                Button button = new Button(f.name);
-                button.styleProperty().bind(Bindings.concat("-fx-font-size:", 14));
-                rowOfFilterButtons.getChildren().add(button);
-                button.setOnAction(actionEvent -> {
-                    f.execute();
-                });
+                createFilterButton(f);
             }
 
-            if (!guest) {
+            //Create button for adding new filter
+            //if you are admin and there are some tables in schema
+            if (!guest && !noTablesInSchema.isVisible()) {
                 Button plusButton = new Button("+");
                 plusButton.styleProperty().bind(Bindings.concat("-fx-font-size:", 14));
                 rowOfFilterButtons.getChildren().add(plusButton);
-                //TODO
-                //plusButton.setOnAction();
+                plusButton.setOnAction(newFilter);
             }
 
         } catch (SQLException throwables) {
@@ -134,8 +136,75 @@ public class ExplorerSceneController extends SceneController {
         }
     }
 
+    EventHandler<ActionEvent> newFilter = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            //TODO:
+            rowOfFilterButtons.getChildren().remove(event.getSource());
+            ChoiceBox<String> choiceBox = new ChoiceBox<String>();
+            choiceBox.styleProperty().bind(Bindings.concat("-fx-pref-height", 14));
+            ObservableList<TableColumn> columns = tableView.getColumns();
+            ObservableList<String> columnNames = FXCollections.emptyObservableList();
+            for (TableColumn tableColumn : columns) {
+                columnNames.add(tableColumn.getId());
+            }
+            choiceBox.setItems(columnNames);
+            rowOfFilterButtons.getChildren().add(choiceBox);
+            Button addButton = new Button("Add new filter");
+            addButton.styleProperty().bind(Bindings.concat("-fx-font-size:", 14));
+            rowOfFilterButtons.getChildren().add(addButton);
+        }
+    };
+
+    private void createFilterButton(Filter f) {
+        Button button = new Button(f.name);
+        button.styleProperty().bind(Bindings.concat("-fx-font-size:", 14));
+        rowOfFilterButtons.getChildren().add(button);
+        button.setOnAction(actionEvent -> {
+            f.execute();
+        });
+        if (!guest) {
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem deleteFilter = new MenuItem("Delete filter");
+            String filterName = f.getName();
+            deleteFilter.setUserData(filterName);
+            deleteFilter.setOnAction(deleteFilterEvent);
+            contextMenu.getItems().add(deleteFilter);
+            button.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+                @Override
+                public void handle(ContextMenuEvent event) {
+                    contextMenu.show(button, event.getScreenX(), event.getScreenY());
+                }
+            });
+        }
+    }
+
+    EventHandler<ActionEvent> deleteFilterEvent = new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            try {
+                Statement statement = appDBConnection.createStatement();
+                MenuItem item = (MenuItem) event.getSource();
+                statement.execute("DELETE FROM table_filters WHERE name='" + item.getUserData() + "'");
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Success");
+                //alert.setHeaderText(null);
+                alert.setContentText("The deletion was completed successfully.");
+                alert.showAndWait();
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                //alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Deletion error!");
+                alert.showAndWait();
+            }
+        }
+    };
+
     //fill in the listView with tables names
-    private void fillInTableView(String schemaName) {
+    private void fillInListOfTables(String schemaName) {
         try {
             noTablesInSchema.setVisible(false);
             Statement statement = exploredDBConnection.createStatement();
@@ -208,8 +277,15 @@ public class ExplorerSceneController extends SceneController {
             for (int i = 0; i < columnsNumber; i++) {
                 int iCopy = i;
                 TableColumn tableColumn = new TableColumn(resultSetMetaData.getColumnName(i + 1));
-                tableColumn.setCellValueFactory((Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>) param ->
-                        new SimpleObjectProperty(param.getValue().get(iCopy)));
+                /*tableColumn.setCellValueFactory((Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>) param ->
+                        new SimpleObjectProperty<Object>(param.getValue().get(iCopy)));*/
+                /*tableColumn.setCellValueFactory((Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>) param ->
+                        new SimpleObjectProperty<Object>(param.getValue().get(iCopy));*/
+                tableColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList,String>,ObservableValue<String>>(){
+                    public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
+                        return new SimpleStringProperty(param.getValue().get(iCopy).toString());
+                    }
+                });
 
                 tableView.getColumns().add(tableColumn);
             }
@@ -264,7 +340,7 @@ public class ExplorerSceneController extends SceneController {
         private String filtered_table;
         private String[] filtered_columns;
 
-        public Filter(String name, String db_name, String filtered_table, String[] filtered_colums) {
+        public Filter(String name, String db_name, String schema, String filtered_table, String[] filtered_colums) {
             this.name = name;
             this.db_name = db_name;
             this.schema = schema;
