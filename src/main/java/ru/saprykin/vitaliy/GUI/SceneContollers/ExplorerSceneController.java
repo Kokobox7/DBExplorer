@@ -1,7 +1,6 @@
 package ru.saprykin.vitaliy.GUI.SceneContollers;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -44,6 +43,9 @@ public class ExplorerSceneController extends SceneController {
     private Label noTablesInSchema;
     @FXML
     private HBox rowOfFilterButtons;
+
+    private MenuButton columnsMenu;
+    private ArrayList<String> currentCollumns;
 
 
     public ExplorerSceneController(boolean guest, String login, Connection exploredDBConnection, String dbName) {
@@ -107,7 +109,7 @@ public class ExplorerSceneController extends SceneController {
 
         try {
             Statement statement = appDBConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM table_filters WHERE db_name= '" + dbName + "' AND schema= '" + schema + "'");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM table_filters WHERE db_name= '" + dbName + "' AND schema= '" + schema + "' LIMIT 100");
 
             filters = new ArrayList<>();
             while (resultSet.next()) {
@@ -122,39 +124,49 @@ public class ExplorerSceneController extends SceneController {
                 createFilterButton(f);
             }
 
-            //Create button for adding new filter
-            //if you are admin and there are some tables in schema
-            if (!guest && !noTablesInSchema.isVisible()) {
-                Button plusButton = new Button("+");
-                plusButton.styleProperty().bind(Bindings.concat("-fx-font-size:", 14));
-                rowOfFilterButtons.getChildren().add(plusButton);
-                plusButton.setOnAction(newFilter);
-            }
+            addPlusButton();
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
 
+    //Create button for adding new filter
+    private void addPlusButton() {
+        //if you are admin and there are some tables in schema
+        if (!guest && !noTablesInSchema.isVisible()) {
+            Button plusButton = new Button("+");
+            plusButton.styleProperty().bind(Bindings.concat("-fx-font-size:", 14));
+            rowOfFilterButtons.getChildren().add(plusButton);
+            plusButton.setOnAction(newFilter);
+        }
+    }
+
     EventHandler<ActionEvent> newFilter = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
-            //TODO:
             rowOfFilterButtons.getChildren().remove(event.getSource());
-            ChoiceBox<String> choiceBox = new ChoiceBox<String>();
-            choiceBox.styleProperty().bind(Bindings.concat("-fx-pref-height", 14));
-            ObservableList<TableColumn> columns = tableView.getColumns();
-            ObservableList<String> columnNames = FXCollections.emptyObservableList();
-            for (TableColumn tableColumn : columns) {
-                columnNames.add(tableColumn.getId());
-            }
-            choiceBox.setItems(columnNames);
-            rowOfFilterButtons.getChildren().add(choiceBox);
+            columnsMenu = new MenuButton();
+            columnsMenu.setMinHeight(30);
+            columnsMenu.setMinWidth(120);
+            columnsMenu.setPrefHeight(30);
+            columnsMenu.setPrefWidth(120);
+            columnsMenu.styleProperty().bind(Bindings.concat("-fx-min-height:", 30));
+            columnsMenu.styleProperty().bind(Bindings.concat("-fx-min-width:", 120));
+            refreshContentOfChoiceBox();
+            rowOfFilterButtons.getChildren().add(columnsMenu);
             Button addButton = new Button("Add new filter");
             addButton.styleProperty().bind(Bindings.concat("-fx-font-size:", 14));
             rowOfFilterButtons.getChildren().add(addButton);
         }
     };
+
+    private void refreshContentOfChoiceBox() {
+        if (columnsMenu != null && currentCollumns != null) {
+            ObservableList<String> columnNames = FXCollections.observableArrayList(currentCollumns);
+            columnNames.stream().map(CheckMenuItem::new).forEach(columnsMenu.getItems()::add);
+        }
+    }
 
     private void createFilterButton(Filter f) {
         Button button = new Button(f.name);
@@ -186,16 +198,14 @@ public class ExplorerSceneController extends SceneController {
                 Statement statement = appDBConnection.createStatement();
                 MenuItem item = (MenuItem) event.getSource();
                 statement.execute("DELETE FROM table_filters WHERE name='" + item.getUserData() + "'");
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Success");
-                //alert.setHeaderText(null);
                 alert.setContentText("The deletion was completed successfully.");
                 alert.showAndWait();
 
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
                 Alert alert = new Alert(Alert.AlertType.ERROR);
-                //alert.setTitle("Error");
                 alert.setHeaderText(null);
                 alert.setContentText("Deletion error!");
                 alert.showAndWait();
@@ -208,7 +218,7 @@ public class ExplorerSceneController extends SceneController {
         try {
             noTablesInSchema.setVisible(false);
             Statement statement = exploredDBConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM pg_tables WHERE schemaname = '" + schemaName + "' LIMIT 200");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM pg_tables WHERE schemaname = '" + schemaName + "'");
             ObservableList<String> listOfResults = FXCollections.observableArrayList();
 
             //Check if resultSet is empty
@@ -241,6 +251,7 @@ public class ExplorerSceneController extends SceneController {
         public void changed(ObservableValue<? extends String> observableValue, String s, String newTable) {
             //We change contents of tableView
             changeContentOfTableView(newTable);
+            refreshContentOfChoiceBox();
         }
     }
 
@@ -274,14 +285,12 @@ public class ExplorerSceneController extends SceneController {
 
             tableView.getColumns().clear();
 
+            currentCollumns = new ArrayList<>();
             for (int i = 0; i < columnsNumber; i++) {
                 int iCopy = i;
                 TableColumn tableColumn = new TableColumn(resultSetMetaData.getColumnName(i + 1));
-                /*tableColumn.setCellValueFactory((Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>) param ->
-                        new SimpleObjectProperty<Object>(param.getValue().get(iCopy)));*/
-                /*tableColumn.setCellValueFactory((Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>) param ->
-                        new SimpleObjectProperty<Object>(param.getValue().get(iCopy));*/
-                tableColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList,String>,ObservableValue<String>>(){
+                currentCollumns.add(resultSetMetaData.getColumnName(i + 1));
+                tableColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                     public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
                         return new SimpleStringProperty(param.getValue().get(iCopy).toString());
                     }

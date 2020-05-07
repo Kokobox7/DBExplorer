@@ -32,6 +32,7 @@ abstract public class SceneStarter {
                 stage.setHeight(height);
                 stage.setWidth(width);
                 stage.centerOnScreen();
+                stage.setMaximized(false);
             }
             stage.setTitle(title);
             if (maximized) {
