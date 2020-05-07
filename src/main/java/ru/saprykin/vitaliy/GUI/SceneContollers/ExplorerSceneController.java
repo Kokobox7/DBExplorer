@@ -17,20 +17,12 @@ import ru.saprykin.vitaliy.DBConnector;
 import ru.saprykin.vitaliy.GUI.SceneStarters.DBConnectionStarter;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ExplorerSceneController extends SceneController {
-    private final boolean guest;
-    private final String login;
-    private final Connection exploredDBConnection;
-    private Connection appDBConnection;
-    private ArrayList<Filter> filters;
-    private String dbName;
-
-    //if null, then when new table selected, all columns will be shown
-    //otherwise, only those with names specified in the variable will be shown
-    private String[] activeFilteredColums = null;
-
     @FXML
     private Label profileInformer;
     @FXML
@@ -44,8 +36,25 @@ public class ExplorerSceneController extends SceneController {
     @FXML
     private HBox rowOfFilterButtons;
 
+    private final boolean guest;
+    private final String login;
+    private final Connection exploredDBConnection;
+    private Connection appDBConnection;
+    private ArrayList<Filter> filters;
+    private String dbName;
+
+
+    //if null, then when new table selected, all columns will be shown
+    //otherwise, only those with names specified in the variable will be shown
+    private String[] activeFilteredColums = null;
+
     private MenuButton columnsMenu;
-    private ArrayList<String> currentCollumns;
+    //names of columns, displayed in columnsMenu
+    private ArrayList<String> collumns;
+    //currently chosen table
+    private String tableName;
+    //columns that set checked in columnsMenu
+    private Set<String> checkedCollumns;
 
 
     public ExplorerSceneController(boolean guest, String login, Connection exploredDBConnection, String dbName) {
@@ -109,7 +118,7 @@ public class ExplorerSceneController extends SceneController {
 
         try {
             Statement statement = appDBConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM table_filters WHERE db_name= '" + dbName + "' AND schema= '" + schema + "' LIMIT 100");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM table_filters WHERE db_name= '" + dbName + "' AND schema_name = '" + schema + "' LIMIT 100");
 
             filters = new ArrayList<>();
             while (resultSet.next()) {
@@ -125,6 +134,8 @@ public class ExplorerSceneController extends SceneController {
             }
 
             addPlusButton();
+
+            refreshListOfColumns();
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -142,29 +153,88 @@ public class ExplorerSceneController extends SceneController {
         }
     }
 
+    //Creates two new instances: menu with columns names to choose from
+    //and button that creates new filter with chosen columns
     EventHandler<ActionEvent> newFilter = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
             rowOfFilterButtons.getChildren().remove(event.getSource());
             columnsMenu = new MenuButton();
-            columnsMenu.setMinHeight(30);
-            columnsMenu.setMinWidth(120);
             columnsMenu.setPrefHeight(30);
             columnsMenu.setPrefWidth(120);
-            columnsMenu.styleProperty().bind(Bindings.concat("-fx-min-height:", 30));
-            columnsMenu.styleProperty().bind(Bindings.concat("-fx-min-width:", 120));
-            refreshContentOfChoiceBox();
+            refreshListOfColumns();
             rowOfFilterButtons.getChildren().add(columnsMenu);
-            Button addButton = new Button("Add new filter");
-            addButton.styleProperty().bind(Bindings.concat("-fx-font-size:", 14));
-            rowOfFilterButtons.getChildren().add(addButton);
+
+
+            Button addFilterButton = new Button("Add new filter");
+            addFilterButton.styleProperty().bind(Bindings.concat("-fx-font-size:", 14));
+            rowOfFilterButtons.getChildren().add(addFilterButton);
+            addFilterButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    ObservableList chosenColumns = FXCollections.observableArrayList();
+                    for (String s : checkedCollumns) {
+                        chosenColumns.add(s);
+                    }
+
+                    if (!chosenColumns.isEmpty()) {
+                        try {
+                            Statement statement = appDBConnection.createStatement();
+
+                            StringBuilder query = new StringBuilder();
+                            query.append("INSERT INTO table_filters (name, db_name, ");
+                            query.append("schema_name, ");
+                            query.append("filtered_table, ");
+                            query.append("filtered_columns) ");
+                            query.append("VALUES ('customFilter").append(LocalDateTime.now()).append("', '").append(dbName).append("', '");
+                            query.append(listOfSchemas.getValue()).append("', ");
+                            query.append("'").append(tableName).append("', ").append("'{");
+                            int i = 0;
+                            for (i = 0; i < chosenColumns.size() - 1; i++) {
+                                query.append(chosenColumns.get(i));
+                                query.append(", ");
+                            }
+                            query.append(chosenColumns.get(i));
+                            query.append("}');");
+                            statement.execute(query.toString());
+
+                            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                            alert.setContentText("Filter added successfully!");
+                            alert.show();
+
+                            //refresh filters row
+                            fillInFilterButtonsRow(listOfSchemas.getValue());
+
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setContentText("No columns were chosen!");
+                        alert.show();
+                    }
+                }
+            });
         }
     };
 
-    private void refreshContentOfChoiceBox() {
-        if (columnsMenu != null && currentCollumns != null) {
-            ObservableList<String> columnNames = FXCollections.observableArrayList(currentCollumns);
-            columnNames.stream().map(CheckMenuItem::new).forEach(columnsMenu.getItems()::add);
+    private void refreshListOfColumns() {
+        if (columnsMenu != null && collumns != null) {
+            columnsMenu.getItems().clear();
+            ObservableList<String> columnNames = FXCollections.observableArrayList(collumns);
+            for (String s : columnNames) {
+                CheckMenuItem item = new CheckMenuItem(s);
+
+                item.setOnAction(a -> {
+                    if (item.isSelected()) {
+                        checkedCollumns.add(s);
+                    } else {
+                        checkedCollumns.remove(s);
+                    }
+                });
+
+                columnsMenu.getItems().add(item);
+            }
         }
     }
 
@@ -201,14 +271,15 @@ public class ExplorerSceneController extends SceneController {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Success");
                 alert.setContentText("The deletion was completed successfully.");
-                alert.showAndWait();
+                alert.show();
+
+                fillInFilterButtonsRow(listOfSchemas.getValue());
 
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
                 Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setHeaderText(null);
                 alert.setContentText("Deletion error!");
-                alert.showAndWait();
+                alert.show();
             }
         }
     };
@@ -249,9 +320,11 @@ public class ExplorerSceneController extends SceneController {
         @Override
         //When selected another table this method invoked
         public void changed(ObservableValue<? extends String> observableValue, String s, String newTable) {
+            tableName = newTable;
             //We change contents of tableView
             changeContentOfTableView(newTable);
-            refreshContentOfChoiceBox();
+            refreshListOfColumns();
+            checkedCollumns = new HashSet<>();
         }
     }
 
@@ -285,11 +358,11 @@ public class ExplorerSceneController extends SceneController {
 
             tableView.getColumns().clear();
 
-            currentCollumns = new ArrayList<>();
+            collumns = new ArrayList<>();
             for (int i = 0; i < columnsNumber; i++) {
                 int iCopy = i;
                 TableColumn tableColumn = new TableColumn(resultSetMetaData.getColumnName(i + 1));
-                currentCollumns.add(resultSetMetaData.getColumnName(i + 1));
+                collumns.add(resultSetMetaData.getColumnName(i + 1));
                 tableColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                     public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
                         return new SimpleStringProperty(param.getValue().get(iCopy).toString());
@@ -345,14 +418,14 @@ public class ExplorerSceneController extends SceneController {
         }
 
         private String db_name;
-        private String schema;
+        private String schema_name;
         private String filtered_table;
         private String[] filtered_columns;
 
-        public Filter(String name, String db_name, String schema, String filtered_table, String[] filtered_colums) {
+        public Filter(String name, String db_name, String schema_name, String filtered_table, String[] filtered_colums) {
             this.name = name;
             this.db_name = db_name;
-            this.schema = schema;
+            this.schema_name = schema_name;
             this.filtered_table = filtered_table;
             this.filtered_columns = filtered_colums;
         }
@@ -361,7 +434,8 @@ public class ExplorerSceneController extends SceneController {
             MultipleSelectionModel<String> tablesSelectionModel = listOfTables.getSelectionModel();
             //show only columns with names filtered_columns
             activeFilteredColums = filtered_columns;
-            tablesSelectionModel.select(filtered_table);
+            //tablesSelectionModel.select(filtered_table);
+            new tableChangeListener().changed(null, null, filtered_table);
         }
     }
 }
