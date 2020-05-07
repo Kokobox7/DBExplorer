@@ -1,1 +1,0 @@
-java -jar DBExplorer-1.0-SNAPSHOT.jar
