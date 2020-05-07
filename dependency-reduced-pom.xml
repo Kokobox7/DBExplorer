@@ -31,9 +31,6 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
-        <configuration>
-          <compilerArgs />
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -41,7 +38,6 @@
         <version>1.6.0</version>
         <configuration>
           <mainClass>ru.saprykin.vitaliy.MainLauncher</mainClass>
-          <arguments />
         </configuration>
       </plugin>
       <plugin>
