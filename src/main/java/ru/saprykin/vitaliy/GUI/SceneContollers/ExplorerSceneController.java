@@ -118,7 +118,7 @@ public class ExplorerSceneController extends SceneController {
 
         try {
             Statement statement = appDBConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM table_filters WHERE db_name= '" + dbName + "' AND schema_name = '" + schema + "' LIMIT 100");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM table_filters WHERE db_name= '" + dbName + "' AND schema_name = '" + schema + "' LIMIT 50");
 
             filters = new ArrayList<>();
             while (resultSet.next()) {
@@ -289,7 +289,7 @@ public class ExplorerSceneController extends SceneController {
         try {
             noTablesInSchema.setVisible(false);
             Statement statement = exploredDBConnection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM pg_tables WHERE schemaname = '" + schemaName + "'");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM pg_tables WHERE schemaname = '" + schemaName + "' LIMIT 50");
             ObservableList<String> listOfResults = FXCollections.observableArrayList();
 
             //Check if resultSet is empty
@@ -333,7 +333,7 @@ public class ExplorerSceneController extends SceneController {
         try {
             Statement statement = exploredDBConnection.createStatement();
 
-            String query = "SELECT * FROM " + listOfSchemas.getValue() + "." + newTable;
+            String query = "SELECT * FROM " + listOfSchemas.getValue() + "." + newTable + " LIMIT 50;";
             if (activeFilteredColums != null) {
                 StringBuilder queryBuilder = new StringBuilder();
                 queryBuilder.append("SELECT ");
@@ -347,6 +347,7 @@ public class ExplorerSceneController extends SceneController {
                 queryBuilder.append(listOfSchemas.getValue());
                 queryBuilder.append(".");
                 queryBuilder.append(newTable);
+                queryBuilder.append(" LIMIT 50;");
                 //next time when any table will be selected, all columns will be displayed
                 activeFilteredColums = null;
                 query = queryBuilder.toString();
@@ -365,7 +366,7 @@ public class ExplorerSceneController extends SceneController {
                 collumns.add(resultSetMetaData.getColumnName(i + 1));
                 tableColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                     public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
-                        return new SimpleStringProperty(param.getValue().get(iCopy).toString());
+                        return new SimpleStringProperty((String)param.getValue().get(iCopy));
                     }
                 });
 
