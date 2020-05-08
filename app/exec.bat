@@ -1,1 +1,1 @@
-%cd%\java-runtime\bin\java -jar %cd%\DBExplorer-1.0-SNAPSHOT.jar
+%~dp0\java-runtime\bin\java.exe -jar %~dp0\DBExplorer-1.0-SNAPSHOT.jar
